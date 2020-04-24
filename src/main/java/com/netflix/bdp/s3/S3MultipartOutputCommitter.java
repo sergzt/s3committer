@@ -16,10 +16,11 @@
 
 package com.netflix.bdp.s3;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.bdp.s3.Tasks.Task;
@@ -30,6 +31,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.JobStatus;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -123,7 +125,24 @@ class S3MultipartOutputCommitter extends FileOutputCommitter {
    * @return a {@link AmazonS3} client
    */
   protected Object findClient(Path path, Configuration conf) {
-    return new AmazonS3Client();
+    String accessKey = conf.get("fs.s3a.access.key");
+    String secretKey = conf.get("fs.s3a.secret.key");
+
+    return AmazonS3ClientBuilder.standard().withCredentials(
+        new AWSCredentialsProviderChain(
+            new BasicAWSCredentialsProvider(accessKey, secretKey),
+            new DefaultAWSCredentialsProviderChain() {
+
+              public AWSCredentials getCredentials() {
+                try {
+                  return super.getCredentials();
+                } catch (AmazonClientException ace) {}
+
+                LOG.debug("No credentials available; falling back to anonymous access");
+                return new AnonymousAWSCredentials();
+              }
+            })
+    ).build();
   }
 
   /**
