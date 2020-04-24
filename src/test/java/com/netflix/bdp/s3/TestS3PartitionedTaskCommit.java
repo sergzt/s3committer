@@ -73,7 +73,7 @@ public class TestS3PartitionedTaskCommit extends TestUtil.TaskCommitterTest<S3Pa
     }
 
     @Override
-    protected Object findClient(Path path, Configuration conf) {
+    protected AmazonS3 findClient(Path path, Configuration conf) {
       return mockClient;
     }
   }

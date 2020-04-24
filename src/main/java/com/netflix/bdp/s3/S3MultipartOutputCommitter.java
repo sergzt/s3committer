@@ -19,7 +19,7 @@ package com.netflix.bdp.s3;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -124,11 +124,11 @@ class S3MultipartOutputCommitter extends FileOutputCommitter {
    * @param conf a Hadoop {@link Configuration}
    * @return a {@link AmazonS3} client
    */
-  protected Object findClient(Path path, Configuration conf) {
+  protected AmazonS3 findClient(Path path, Configuration conf) {
     String accessKey = conf.get("fs.s3a.access.key");
     String secretKey = conf.get("fs.s3a.secret.key");
 
-    return AmazonS3ClientBuilder.standard().withCredentials(
+    return new AmazonS3Client(
         new AWSCredentialsProviderChain(
             new BasicAWSCredentialsProvider(accessKey, secretKey),
             new DefaultAWSCredentialsProviderChain() {
@@ -142,7 +142,7 @@ class S3MultipartOutputCommitter extends FileOutputCommitter {
                 return new AnonymousAWSCredentials();
               }
             })
-    ).build();
+    );
   }
 
   /**

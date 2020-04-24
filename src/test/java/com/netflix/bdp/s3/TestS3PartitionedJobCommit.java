@@ -52,7 +52,7 @@ public class TestS3PartitionedJobCommit extends TestUtil.JobCommitterTest<S3Part
     }
 
     @Override
-    protected Object findClient(Path path, Configuration conf) {
+    protected AmazonS3 findClient(Path path, Configuration conf) {
       return client;
     }
 
