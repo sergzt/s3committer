@@ -1,8 +1,3 @@
-# Iceberg
-
-**I currently recommend using Iceberg tables instead of using these committers**. Check out the [Netflix/iceberg](https://github.com/Netflix/iceberg) project for details.
-
-
 ## S3 output committers
 
 This project has Hadoop OutputCommitter implementations for S3.
@@ -62,4 +57,4 @@ If the process dies during job commit, cleaning up is a manual process. File nam
 
 ## Build
 
-This project uses gradle. To build and test, run `gradle build`.
+This project uses maven. To build and test, run `mvn package`.
